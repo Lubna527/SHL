@@ -1,154 +1,113 @@
-# 📘 SHL Assessment Recommender – Documentation
+# 🔍 SHL Assessment Recommender System
 
-## 🧩 Overview
+This project automates the **scraping, enrichment, recommendation, and serving** of SHL assessments using NLP techniques and web APIs. It allows recruiters and hiring managers to input job descriptions and get relevant SHL assessment recommendations in seconds.
 
-This project performs **web scraping**, **data enrichment**, **storage**, **recommendation**, and **API serving** for SHL assessments using SHL's public product catalog. It leverages NLP techniques for recommending relevant assessments based on job descriptions.
-
----
-
-## 📂 Module Breakdown
-
-### 1. **Dependency Installation**
-
-```python
-!pip install fastapi nest-asyncio pyngrok uvicorn scikit-learn flask
-!pip install gradio sentence-transformers numpy
-```
-
-Installs required libraries for web scraping, data science, embedding models, and API/UI frameworks.
+> 🚀 **Live Demo**: [Gradio App](https://9f9c78fa70f32f940e.gradio.live)
 
 ---
 
-### 2. **Scraping Assessment Data**
+## 📌 Features
 
-#### `extract_data_from_page(soup)`
-
-Extracts assessments or entities from a SHL HTML page using BeautifulSoup. Pulls:
-
-* Course/Entity ID
-* Assessment Name
-* Link
-* Remote Support Indicator
-* Adaptive Indicator
-* Key Tags
-
-#### `scrape_all_pages_by_type(content_type)`
-
-Loops through paginated SHL catalog pages by content type (1 = course, 2 = entity), and aggregates data.
+* ✅ Scrapes SHL product catalog (courses & entities)
+* ✅ Enriches each item with job levels, duration, languages, etc.
+* ✅ Saves data in `.json` and `.xlsx` formats
+* ✅ Uses sentence embeddings for semantic recommendation
+* ✅ Evaluates model with Recall\@K and MAP\@K
+* ✅ Interactive UI (Gradio) + REST API (Flask + Ngrok)
 
 ---
 
-### 3. **Storing Scraped Data**
 
-```python
-with open("shl_data_basic.json", "w") ...
-```
+## 🔧 Setup Instructions
 
-Saves the scraped basic metadata into a JSON file.
-
----
-
-### 4. **Enriching Assessment Metadata**
-
-#### `extract_detail_fields(item)`
-
-Enhances each scraped assessment by visiting its detailed page to extract:
-
-* Description
-* Job Levels
-* Languages
-* Assessment Duration
-
-Uses `ThreadPoolExecutor` to parallelize enrichment.
-
----
-
-### 5. **Data Conversion to Excel**
-
-Converts both raw and enriched JSON into Excel files using `pandas`.
-
----
-
-### 6. **Embedding and Recommender Engine**
-
-#### `load_and_prepare_data(filepath)`
-
-Cleans and augments JSON data:
-
-* Generates text for embedding
-* Normalizes duration
-* Maps keys to readable types
-
-#### Embedding Model
-
-```python
-model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L12-cos-v5')
-```
-
-Generates sentence embeddings for assessments using the [Sentence Transformers](https://www.sbert.net/) library.
-
-#### `recommend_assessments(user_query, max_duration=None)`
-
-* Converts query to embedding
-* Computes cosine similarity with assessment embeddings
-* Returns top N (10) relevant assessments, optionally filtering by duration
-
----
-
-### 7. **Evaluation Metrics**
-
-Includes functions to evaluate the recommender:
-
-* `calculate_recall_at_k()`
-* `calculate_map_at_k()`
-* `evaluate_model()`
-  Takes test queries with ground truth and returns average recall\@k and MAP\@k.
-
----
-
-### 8. **Gradio Web App**
-
-```python
-gr.Interface(...)
-```
-
-A simple UI to input job descriptions and return recommended SHL assessments using the Gradio library.
-
----
-
-### 9. **Flask API with Ngrok Tunnel**
-
-#### Endpoints
-
-* `POST /shl-ai-apis/recommend`: Takes a query and returns assessment recommendations
-* `GET /shl-ai-apis/health`: Simple health check endpoint
-
-#### Ngrok Integration
-
-Creates a public URL to expose the Flask app without manual hosting.
-
----
-
-## 🧪 Example API Usage
-
-### Health Check
+1. **Install dependencies**:
 
 ```bash
-GET /shl-ai-apis/health
+pip install fastapi nest-asyncio pyngrok uvicorn scikit-learn flask gradio sentence-transformers numpy
 ```
 
-### Get Recommendations
+2. **Run the scraper and enrichment scripts** to generate `shl_data_enriched.json`.
+
+3. **Launch the Gradio App**:
 
 ```bash
+python app_gradio.py
+```
+
+Or use the hosted version here: 👉 [https://9f9c78fa70f32f940e.gradio.live](https://9f9c78fa70f32f940e.gradio.live)
+
+4. **Launch the Flask API**:
+
+```bash
+
+---
+
+## 📡 API Endpoints
+
+| Endpoint                 | Method | Description                                         |
+| ------------------------ | ------ | --------------------------------------------------- |
+| `/shl-ai-apis/health`    | GET    | Health check                                        |
+| `/shl-ai-apis/recommend` | POST   | Get top 10 recommended assessments based on a query |
+
+### Sample Request
+
+```json
 POST /shl-ai-apis/recommend
 {
-  "query": "I want to hire a content writer who is good at SEO and English"
+  "query": "Looking for a data analyst skilled in Python and Excel. Duration 45 minutes."
 }
 ```
 
+```python
+#Run this code
+import requests
+import json
+
+# Making a GET request to the health endpoint
+res = requests.get("https://f540-35-199-157-109.ngrok-free.app/shl-ai-apis/health")
+print(res.status_code)
+# Pretty print the JSON response from the health check endpoint
+print(json.dumps(res.json(), indent=4))
+
+# Query to send in the POST request
+query = {
+    "query": "I want to hire a content writer who is good at SEO and English"
+}
+
+# Making a POST request to the recommend endpoint
+res = requests.post("https://f540-35-199-157-109.ngrok-free.app/shl-ai-apis/recommend", json=query)
+print(res.status_code)
+# Pretty print the JSON response from the recommend endpoint
+print(json.dumps(res.json(), indent=4))
+```
 Returns top assessments matching the request.
 
 ---
+
+## 🧪 Evaluation Metrics
+
+Included test suite evaluates:
+
+* **Recall\@K**
+* **MAP\@K**
+
+---
+
+---
+## 📊 Example Output
+
+```json
+{
+  "Assessment Name": "Data Analyst Assessment",
+  "Job Level": "Entry",
+  "Duration (min)": 45,
+  "Remote Testing": "Yes",
+  "Adaptive/IRT": "No",
+  "Test Type(s)": "Ability & Aptitude, Knowledge & Skills",
+  "Languages": "English",
+  "Description": "This assessment evaluates core data analytics skills in Excel and Python..."
+}
+```
 
 ## 📌 Technologies Used
 
