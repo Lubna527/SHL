@@ -49,13 +49,6 @@ Or use the hosted version here: 👉 [https://9f9c78fa70f32f940e.gradio.live](ht
 | `/shl-ai-apis/health`    | GET    | Health check                                        |
 | `/shl-ai-apis/recommend` | POST   | Get top 10 recommended assessments based on a query |
 
-### Sample Request
-
-```json
-POST /shl-ai-apis/recommend
-{
-  "query": "Looking for a data analyst skilled in Python and Excel. Duration 45 minutes."
-}
 ```
 
 ```python
