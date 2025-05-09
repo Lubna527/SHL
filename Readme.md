@@ -1,6 +1,7 @@
+````markdown
 # 🔍 SHL Assessment Recommender System
 
-This project automates the **scraping, enrichment, recommendation, and serving** of SHL assessments using NLP techniques and web APIs. It allows recruiters and hiring managers to input job descriptions and get relevant SHL assessment recommendations in seconds.
+This project automates the **scraping, enrichment, recommendation, and serving** of SHL assessments using NLP techniques and web APIs. It allows recruiters and hiring managers to input job descriptions and instantly get relevant SHL assessment recommendations.
 
 > 🚀 **Live Demo**: [Gradio App](https://9f9c78fa70f32f940e.gradio.live)
 
@@ -8,15 +9,14 @@ This project automates the **scraping, enrichment, recommendation, and serving**
 
 ## 📌 Features
 
-* ✅ Scrapes SHL product catalog (courses & entities)
-* ✅ Enriches each item with job levels, duration, languages, etc.
-* ✅ Saves data in `.json` and `.xlsx` formats
-* ✅ Uses sentence embeddings for semantic recommendation
-* ✅ Evaluates model with Recall\@K and MAP\@K
-* ✅ Interactive UI (Gradio) + REST API (Flask + Ngrok)
+- ✅ Scrapes SHL product catalog (courses & entities)
+- ✅ Enriches each item with job levels, duration, languages, etc.
+- ✅ Saves data in `.json` and `.xlsx` formats
+- ✅ Uses sentence embeddings for semantic recommendation
+- ✅ Evaluates model with Recall@K and MAP@K
+- ✅ Interactive UI (Gradio) + REST API (Flask + Ngrok)
 
 ---
-
 
 ## 🔧 Setup Instructions
 
@@ -24,7 +24,7 @@ This project automates the **scraping, enrichment, recommendation, and serving**
 
 ```bash
 pip install fastapi nest-asyncio pyngrok uvicorn scikit-learn flask gradio sentence-transformers numpy
-```
+````
 
 2. **Run the scraper and enrichment scripts** to generate `shl_data_enriched.json`.
 
@@ -39,6 +39,8 @@ Or use the hosted version here: 👉 [https://9f9c78fa70f32f940e.gradio.live](ht
 4. **Launch the Flask API**:
 
 ```bash
+python app_api.py
+```
 
 ---
 
@@ -49,44 +51,28 @@ Or use the hosted version here: 👉 [https://9f9c78fa70f32f940e.gradio.live](ht
 | `/shl-ai-apis/health`    | GET    | Health check                                        |
 | `/shl-ai-apis/recommend` | POST   | Get top 10 recommended assessments based on a query |
 
-```
+### 🔁 Example API Usage (Python)
 
 ```python
-#Run this code
 import requests
 import json
 
-# Making a GET request to the health endpoint
+# Health check
 res = requests.get("https://f540-35-199-157-109.ngrok-free.app/shl-ai-apis/health")
 print(res.status_code)
-# Pretty print the JSON response from the health check endpoint
 print(json.dumps(res.json(), indent=4))
 
-# Query to send in the POST request
+# Recommendation query
 query = {
     "query": "I want to hire a content writer who is good at SEO and English"
 }
-
-# Making a POST request to the recommend endpoint
 res = requests.post("https://f540-35-199-157-109.ngrok-free.app/shl-ai-apis/recommend", json=query)
 print(res.status_code)
-# Pretty print the JSON response from the recommend endpoint
 print(json.dumps(res.json(), indent=4))
 ```
-Returns top assessments matching the request.
 
 ---
 
-## 🧪 Evaluation Metrics
-
-Included test suite evaluates:
-
-* **Recall\@K**
-* **MAP\@K**
-
----
-
----
 ## 📊 Example Output
 
 ```json
@@ -102,26 +88,118 @@ Included test suite evaluates:
 }
 ```
 
-## 📌 Technologies Used
+---
 
-* **Python**: Core language
-* **BeautifulSoup**: HTML scraping
-* **Requests**: HTTP client
-* **Pandas**: Data manipulation
-* **Sentence-Transformers**: Embeddings
-* **Gradio**: Interactive UI
-* **Flask**: REST API
-* **Ngrok**: Public tunneling
-* **ThreadPoolExecutor**: Concurrency
+## 🧪 Evaluation Metrics
+
+Evaluation functions use labeled test data and return:
+
+* **Recall\@K**
+* **MAP\@K**
+
+To test model performance, run:
+
+```bash
+python evaluation.py
+```
 
 ---
 
-## ✅ Final Outputs
+## 🧩 Project Architecture (Module Overview)
 
-* `shl_data_basic.json`: Raw scraped data
-* `shl_data_enriched.json`: Enhanced with detailed metadata
-* `shl_data_enriched.xlsx`, `shl_data_basic.xlsx`: Excel exports
-* `/shl-ai-apis/recommend`: Recommendation endpoint
-* Gradio interface for interactive testing
+### 📘 1. Scraper Module
+
+* **`extract_data_from_page(soup)`**: Parses SHL catalog HTML using BeautifulSoup.
+* **`scrape_all_pages_by_type(content_type)`**: Aggregates data for "course" and "entity" types.
+
+Saves data to `shl_data_basic.json`.
+
+---
+
+### 🔍 2. Enrichment Module
+
+* **`extract_detail_fields(item)`**: Visits individual assessment pages and enriches with:
+
+  * Job Level
+  * Duration
+  * Languages
+  * Description
+* Parallelized using `ThreadPoolExecutor`.
+
+Saves enriched data to `shl_data_enriched.json` and Excel files.
+
+---
+
+### 📈 3. Embedding & Recommendation
+
+* Uses `sentence-transformers/msmarco-MiniLM-L12-cos-v5` to embed job descriptions and items.
+* Cosine similarity used to rank assessments.
+
+```python
+recommend_assessments(query="Need a data engineer skilled in Python", max_duration=60)
+```
+
+Returns top N recommended assessments.
+
+---
+
+### 🎛️ 4. Gradio Web App
+
+A simple UI with input box and table view using:
+
+```python
+gr.Interface(...)
+```
+
+Run locally with `python app_gradio.py` or use [live link](https://9f9c78fa70f32f940e.gradio.live).
+
+---
+
+### 🌐 5. Flask REST API + Ngrok
+
+Endpoints:
+
+* `GET /shl-ai-apis/health`
+* `POST /shl-ai-apis/recommend`
+
+Exposes model via public URL using `pyngrok`.
+
+---
+
+### 📏 6. Evaluation Script
+
+* `evaluate_model()` uses test cases and metrics:
+
+  * `calculate_recall_at_k()`
+  * `calculate_map_at_k()`
+
+---
+
+## 🧰 Technologies Used
+
+* **Python 3.8+**
+* **BeautifulSoup** – Web scraping
+* **Requests** – HTTP client
+* **Pandas / NumPy** – Data processing
+* **Sentence-Transformers** – Text embeddings
+* **Gradio** – Web UI
+* **Flask + Ngrok** – REST API deployment
+* **ThreadPoolExecutor** – Multithreading
+
+---
+
+## ✅ Final Output Files
+
+| File                     | Description                               |
+| ------------------------ | ----------------------------------------- |
+| `shl_data_basic.json`    | Raw scraped data                          |
+| `shl_data_enriched.json` | Enriched metadata with all fields         |
+| `shl_data_enriched.xlsx` | Excel version of enriched data            |
+| `app_gradio.py`          | Gradio frontend interface                 |
+| `app_api.py`             | Flask API with recommendation endpoint    |
+| `evaluation.py`          | Model evaluation metrics and test queries |
+
+---
 
 
+```
