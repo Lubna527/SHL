@@ -1,4 +1,3 @@
-````markdown
 # 🔍 SHL Assessment Recommender System
 
 This project automates the **scraping, enrichment, recommendation, and serving** of SHL assessments using NLP techniques and web APIs. It allows recruiters and hiring managers to input job descriptions and instantly get relevant SHL assessment recommendations.
