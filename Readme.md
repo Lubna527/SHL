@@ -30,19 +30,11 @@ pip install fastapi nest-asyncio pyngrok uvicorn scikit-learn flask gradio sente
 
 3. **Launch the Gradio App**:
 
-```bash
-python app_gradio.py
-```
 
 Or use the hosted version here: 👉 [https://9f9c78fa70f32f940e.gradio.live](https://9f9c78fa70f32f940e.gradio.live)
 
 4. **Launch the Flask API**:
 
-```bash
-python app_api.py
-```
-
----
 
 ## 📡 API Endpoints
 
@@ -99,9 +91,6 @@ Evaluation functions use labeled test data and return:
 
 To test model performance, run:
 
-```bash
-python evaluation.py
-```
 
 ---
 
@@ -195,9 +184,6 @@ Exposes model via public URL using `pyngrok`.
 | `shl_data_basic.json`    | Raw scraped data                          |
 | `shl_data_enriched.json` | Enriched metadata with all fields         |
 | `shl_data_enriched.xlsx` | Excel version of enriched data            |
-| `app_gradio.py`          | Gradio frontend interface                 |
-| `app_api.py`             | Flask API with recommendation endpoint    |
-| `evaluation.py`          | Model evaluation metrics and test queries |
 
 ---
 
